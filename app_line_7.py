@@ -85,12 +85,12 @@ while True:
 
 def lire_variables_sql():
     try:
-        query = "SELECT * FROM OrdreFabrication WHERE enProd = 1 ORDER BY Id LIMIT 1"
+        query = "SELECT * FROM OrdreFabrication WHERE Of_Prod = 1 ORDER BY Id LIMIT 1"
         cursor.execute(query)
         of_row = cursor.fetchone()
 
-        query = "SELECT SUM(quantite) FROM NonConforme WHERE OF = %s"
-        cursor.execute(query, (of_row["NOF"],))
+        query = "SELECT SUM(Quantite) FROM NonConforme WHERE Of = %s"
+        cursor.execute(query, (of_row["Numero"],))
         total_nc_quantity = cursor.fetchone()[0]
 
         return {"of": of_row, "total_nc_quantity": total_nc_quantity}
@@ -100,10 +100,10 @@ def lire_variables_sql():
 
 def handle_history(kpis, variables_opc):
     try:
-        query = "INSERT INTO HistoriqueTemp (poste, `of`, TP, TQ, TD, QP, debit) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        query = "INSERT INTO HistoriqueTemp (Poste, `Of`, TP, TQ, TD, QP, Debit) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         data = (
             get_poste(),
-            lire_variables_sql()["of"]["NOF"],
+            lire_variables_sql()["of"]["Numero"],
             kpis["TP"],
             kpis["TQ"],
             kpis["TD"],
@@ -121,7 +121,7 @@ def handle_history(kpis, variables_opc):
 def handle_arret(variables_opc):
     global start_time, etat
     try:
-        query = "INSERT INTO Arret (poste, `of`, duree) VALUES (%s, %s, %s)"
+        query = "INSERT INTO Arret (Poste, `Of`, Duree) VALUES (%s, %s, %s)"
 
         if variables_opc["etat_arret"] == 1 and etat:
             start_time = datetime.now()
@@ -132,7 +132,7 @@ def handle_arret(variables_opc):
             if duration > timedelta(minutes=5):
                 data = (
                     get_poste(),
-                    lire_variables_sql()["of"]["NOF"],
+                    lire_variables_sql()["of"]["Numero"],
                     duration.total_seconds(),
                 )
                 cursor.execute(query, data)
@@ -178,10 +178,10 @@ def process_data():
 
         cursor.execute(
             """
-            SELECT TP, TQ, TD, QP, debit
+            SELECT TP, TQ, TD, QP, Debit
             FROM HistoriqueTemp
-            WHERE date >= %s
-            ORDER BY date DESC 
+            WHERE Date >= %s
+            ORDER BY Date DESC 
         """,
             (one_hour_ago,),
         )
@@ -198,12 +198,12 @@ def process_data():
         avg_debit = sum(row[5] for row in rows) / len(rows)
 
         poste = get_poste()
-        of = lire_variables_sql()["of"]["NOF"]
+        of = lire_variables_sql()["of"]["Numero"]
 
         try:
             cursor.execute(
                 """
-                INSERT INTO Historique (date, poste, `of`, TP, TQ, TD, QP, debit)
+                INSERT INTO Historique (Date, Poste, `Of`, TP, TQ, TD, QP, Debit)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
                 (
@@ -241,7 +241,7 @@ def delete_duplicates():
             INNER JOIN Historique t2 
             WHERE 
                 t1.id < t2.id AND 
-                t1.date = t2.date
+                t1.Date = t2.Date
         """
         cursor.execute(query)
         conn.commit()
