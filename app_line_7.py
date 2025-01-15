@@ -93,7 +93,15 @@ def lire_variables_sql():
         cursor.execute(query, (of_row["Numero"],))
         total_nc_quantity = cursor.fetchone()[0]
 
-        return {"of": of_row, "total_nc_quantity": total_nc_quantity}
+        query = "SELECT SUM(Quantite) FROM Dechet WHERE Of = %s"
+        cursor.execute(query, (of_row["Numero"],))
+        total_dechet_quantity = cursor.fetchone()[0]
+
+        return {
+            "of": of_row,
+            "total_nc_quantity": total_nc_quantity,
+            "total_dechet_quantity": total_dechet_quantity,
+        }
     except mysql.connector.Error as err:
         logger.error(f"Error fetching SQL variables: {err}")
 

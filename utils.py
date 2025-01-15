@@ -17,17 +17,21 @@ def get_poste():
 
 def calculer_kpi(variables_opc, variables_sql):
     try:
-        if variables_sql["of"]["debit"] <= 0:
+        if variables_sql["of"]["Debit"] <= 0:
             TP = 0
         else:
-            TP = min((variables_opc["debit"] / variables_opc["debit"]) * 100, 100)
+            TP = min((variables_opc["Debit"] / variables_opc["Debit"]) * 100, 100)
 
-        if (variables_opc["conso"] - variables_sql["qte_nc"]) <= 0:
+        if (variables_opc["conso"] - variables_sql["total_nc_quantity"]) <= 0:
             TQ = 0
         else:
             TQ = min(
                 (
-                    (variables_opc["conso"] - variables_sql["qte_nc"])
+                    (
+                        variables_opc["conso"]
+                        - variables_sql["total_nc_quantity"]
+                        - variables_sql["total_dechet_quantity"]
+                    )
                     / (variables_opc["conso"])
                 )
                 * 100,
