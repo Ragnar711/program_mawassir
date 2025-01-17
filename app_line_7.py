@@ -108,7 +108,7 @@ def lire_variables_sql():
 
 def handle_history(kpis, variables_opc):
     try:
-        query = "INSERT INTO HistoriqueTemp (Poste, `Of`, TP, TQ, TD, QP, Debit) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        query = "INSERT INTO HistoriqueTemp (Poste, `Of`, TP, TQ, TD, QP, Debit, VT, VE, PM) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         data = (
             get_poste(),
             lire_variables_sql()["of"]["Numero"],
@@ -117,6 +117,9 @@ def handle_history(kpis, variables_opc):
             kpis["TD"],
             variables_opc["conso"],
             variables_opc["debit"],
+            variables_opc["vit_tirage"],
+            variables_opc["vit_extrusion"],
+            variables_opc["poid_metre"],
         )
         cursor.execute(query, data)
         conn.commit()
